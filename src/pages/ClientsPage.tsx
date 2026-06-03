@@ -2,14 +2,13 @@ import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { useNavigate } from "react-router-dom";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Search, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,10 +25,13 @@ import { useClients } from "@/hooks/useClients";
 import * as clientService from "@/services/clients";
 import { getAgeFromPersonalId } from "@/lib/utils";
 import type { ClientFormData } from "@/lib/schemas";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 export default function ClientsPage() {
   const { data: clients } = useClients();
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
 
   const handleCreate = async (data: ClientFormData) => {
     await clientService.create({
@@ -45,20 +47,43 @@ export default function ClientsPage() {
     });
   };
 
+  const filteredClients =
+    search.length >= 3
+      ? clients?.filter((client) => {
+          const q = search.toLowerCase();
+          return (
+            client.firstName.toLowerCase().includes(q) ||
+            client.lastName.toLowerCase().includes(q) ||
+            client.email.toLowerCase().includes(q) ||
+            client.phone.toLowerCase().includes(q) ||
+            client.personalId.toLowerCase().includes(q)
+          );
+        })
+      : clients;
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Klienti</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Správa klientů a jejich smluv
+            Počet klientů: {filteredClients?.length ?? 0}
           </p>
         </div>
         <ClientForm onSubmit={handleCreate} />
       </div>
 
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          className="pl-9"
+          placeholder="Hledat podle jména, emailu nebo telefonu..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
       <Table>
-        <TableCaption>Klienti</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Jméno</TableHead>
@@ -71,7 +96,17 @@ export default function ClientsPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {clients.map((client) => (
+          {filteredClients?.length === 0 && (
+            <TableRow>
+              <TableCell
+                colSpan={7}
+                className="h-24 text-center text-muted-foreground"
+              >
+                Žádní klienti
+              </TableCell>
+            </TableRow>
+          )}
+          {filteredClients?.map((client) => (
             <TableRow key={client.id}>
               <TableCell>{client.firstName}</TableCell>
               <TableCell>{client.lastName}</TableCell>
