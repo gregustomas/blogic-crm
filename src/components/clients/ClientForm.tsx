@@ -17,6 +17,35 @@ import { clientSchema, type ClientFormData } from "@/lib/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const PHONE_PREFIXES = [
+  { label: "CZ +420", value: "+420" },
+  { label: "SK +421", value: "+421" },
+  { label: "PL +48", value: "+48" },
+  { label: "DE +49", value: "+49" },
+  { label: "AT +43", value: "+43" },
+];
+
+function parsePhone(phone: string): { prefix: string; local: string } {
+  for (const p of PHONE_PREFIXES) {
+    if (phone.startsWith(p.value)) {
+      return { prefix: p.value, local: phone.slice(p.value.length).trim() };
+    }
+  }
+  return { prefix: "+420", local: "" };
+}
+
+function formatLocalNumber(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 9);
+  return digits.replace(/(\d{3})(?=\d)/g, "$1 ");
+}
 
 interface ClientFormProps {
   onSubmit: (data: ClientFormData) => Promise<void>;
@@ -38,6 +67,8 @@ export function ClientForm({
     ? "Upravte informace o klientovi."
     : "Zadejte informace o novém klientovi.";
   const [open, setOpen] = useState(false);
+  const [prefix, setPrefix] = useState("+420");
+  const [localNumber, setLocalNumber] = useState("");
 
   const {
     register,
@@ -51,7 +82,12 @@ export function ClientForm({
   });
 
   useEffect(() => {
-    if (open) reset(defaultValues);
+    if (open) {
+      reset(defaultValues);
+      const parsed = parsePhone(defaultValues?.phone ?? "");
+      setPrefix(parsed.prefix);
+      setLocalNumber(parsed.local);
+    }
   }, [open]);
 
   const handleFormSubmit = async (data: ClientFormData) => {
@@ -118,12 +154,38 @@ export function ClientForm({
             </Field>
             <Field>
               <Label htmlFor="phone">Telefon</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+420 123 456 789"
-                {...register("phone")}
-              />
+              <input type="hidden" {...register("phone")} />
+              <div className="flex gap-2">
+                <Select
+                  value={prefix}
+                  onValueChange={(val) => {
+                    setPrefix(val);
+                    setValue("phone", `${val} ${localNumber}`.trim());
+                  }}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PHONE_PREFIXES.map((p) => (
+                      <SelectItem key={p.value} value={p.value}>
+                        {p.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="123 456 789"
+                  value={localNumber}
+                  onChange={(e) => {
+                    const formatted = formatLocalNumber(e.target.value);
+                    setLocalNumber(formatted);
+                    setValue("phone", `${prefix} ${formatted}`.trim());
+                  }}
+                />
+              </div>
               {errors.phone && (
                 <p className="text-sm text-destructive">
                   {errors.phone.message}

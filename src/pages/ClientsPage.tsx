@@ -23,7 +23,7 @@ import {
 import { ClientForm } from "@/components/clients/ClientForm";
 import { useClients } from "@/hooks/useClients";
 import * as clientService from "@/services/clients";
-import { getAgeFromPersonalId } from "@/lib/utils";
+import { fullName, getAgeFromPersonalId } from "@/lib/utils";
 import type { ClientFormData } from "@/lib/schemas";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -61,6 +61,7 @@ export default function ClientsPage() {
       ...data,
       age: getAgeFromPersonalId(data.personalId) ?? 0,
     });
+    toast.success("Klient úspěšně vytvořen");
   };
 
   const handleUpdate = async (id: string, data: ClientFormData) => {
@@ -69,6 +70,7 @@ export default function ClientsPage() {
       ...data,
       age: getAgeFromPersonalId(data.personalId) ?? 0,
     });
+    toast.success("Klient úspěšně aktualizován");
   };
 
   const filteredClients =
@@ -111,19 +113,17 @@ export default function ClientsPage() {
         <TableHeader>
           <TableRow>
             <TableHead>Jméno</TableHead>
-            <TableHead>Příjmení</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Telefon</TableHead>
-            <TableHead>Rodné číslo</TableHead>
             <TableHead>Věk</TableHead>
-            <TableHead>Akce</TableHead>
+            <TableHead className="text-right">Akce</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filteredClients?.length === 0 && (
             <TableRow>
               <TableCell
-                colSpan={7}
+                colSpan={5}
                 className="h-24 text-center text-muted-foreground"
               >
                 Žádní klienti
@@ -131,15 +131,22 @@ export default function ClientsPage() {
             </TableRow>
           )}
           {filteredClients?.map((client) => (
-            <TableRow key={client.id}>
-              <TableCell>{client.firstName}</TableCell>
-              <TableCell>{client.lastName}</TableCell>
+            <TableRow
+              key={client.id}
+              onClick={() => navigate(`/clients/${client.id}`)}
+              className="cursor-pointer"
+            >
+              <TableCell>
+                {fullName(client.firstName, client.lastName)}
+              </TableCell>
               <TableCell>{client.email}</TableCell>
               <TableCell>{client.phone}</TableCell>
-              <TableCell>{client.personalId}</TableCell>
               <TableCell>{client.age}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
+              <TableCell
+                className="text-right"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex space-x-2 justify-end">
                   {/* detail */}
                   <Button
                     variant="ghost"
@@ -180,6 +187,7 @@ export default function ClientsPage() {
                           variant="destructive"
                           onClick={() => {
                             clientService.deleteById(client.id);
+                            toast.success("Klient úspěšně smazán");
                           }}
                         >
                           Smazat
