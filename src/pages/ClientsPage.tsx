@@ -27,6 +27,28 @@ import { getAgeFromPersonalId } from "@/lib/utils";
 import type { ClientFormData } from "@/lib/schemas";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+
+async function checkDuplicates(
+  email: string,
+  personalId: string,
+  excludeId?: string,
+): Promise<boolean> {
+  const [emailTaken, personalIdTaken] = await Promise.all([
+    clientService.isEmailTaken(email, excludeId),
+    clientService.isPersonalIdTaken(personalId, excludeId),
+  ]);
+
+  if (emailTaken) {
+    toast.error("Tento email již existuje");
+    return true;
+  }
+  if (personalIdTaken) {
+    toast.error("Toto rodné číslo již existuje");
+    return true;
+  }
+  return false;
+}
 
 export default function ClientsPage() {
   const { data: clients } = useClients();
@@ -34,6 +56,7 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
 
   const handleCreate = async (data: ClientFormData) => {
+    if (await checkDuplicates(data.email, data.personalId)) return;
     await clientService.create({
       ...data,
       age: getAgeFromPersonalId(data.personalId) ?? 0,
@@ -41,6 +64,7 @@ export default function ClientsPage() {
   };
 
   const handleUpdate = async (id: string, data: ClientFormData) => {
+    if (await checkDuplicates(data.email, data.personalId, id)) return;
     await clientService.update(id, {
       ...data,
       age: getAgeFromPersonalId(data.personalId) ?? 0,
