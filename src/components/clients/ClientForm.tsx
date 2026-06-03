@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { formatPersonalId } from "@/lib/utils";
 import { clientSchema, type ClientFormData } from "@/lib/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 
 interface ClientFormProps {
@@ -49,6 +49,10 @@ export function ClientForm({
     resolver: zodResolver(clientSchema),
     defaultValues,
   });
+
+  useEffect(() => {
+    if (open) reset(defaultValues);
+  }, [open]);
 
   const handleFormSubmit = async (data: ClientFormData) => {
     await onSubmit(data);
