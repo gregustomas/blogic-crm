@@ -8,46 +8,41 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useNavigate } from "react-router-dom";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Field, FieldGroup } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { ClientForm } from "@/components/clients/ClientForm";
 import { useClients } from "@/hooks/useClients";
 import * as clientService from "@/services/clients";
-import { useForm } from "react-hook-form";
-import { formatPersonalId, getAgeFromPersonalId } from "@/lib/utils";
-import { clientSchema, type ClientFormData } from "@/lib/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { getAgeFromPersonalId } from "@/lib/utils";
+import type { ClientFormData } from "@/lib/schemas";
 
 export default function ClientsPage() {
-  const [open, setOpen] = useState(false);
   const { data: clients } = useClients();
+  const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm<ClientFormData>({
-    resolver: zodResolver(clientSchema),
-  });
+  const handleCreate = async (data: ClientFormData) => {
+    await clientService.create({
+      ...data,
+      age: getAgeFromPersonalId(data.personalId) ?? 0,
+    });
+  };
 
-  const onSubmit = async (data: ClientFormData) => {
-    const age = getAgeFromPersonalId(data.personalId);
-    await clientService.create({ ...data, age: age ?? 0 });
-    reset();
-    setOpen(false);
+  const handleUpdate = async (id: string, data: ClientFormData) => {
+    await clientService.update(id, {
+      ...data,
+      age: getAgeFromPersonalId(data.personalId) ?? 0,
+    });
   };
 
   return (
@@ -55,105 +50,11 @@ export default function ClientsPage() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Klienti</h1>
-          <p className="text-sm text-muted-foreground mt-1">Správa klientů a jejich smluv</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Správa klientů a jejich smluv
+          </p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline">Přidat klienta</Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-xl">
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <DialogHeader className="mb-4">
-              <DialogTitle>Nový klient</DialogTitle>
-              <DialogDescription>
-                Zadejte informace o novém klientovi.
-              </DialogDescription>
-            </DialogHeader>
-            <FieldGroup>
-              <div className="flex space-x-2">
-                <Field>
-                  <Label htmlFor="firstName">Jméno</Label>
-                  <Input
-                    id="firstName"
-                    placeholder="Jan"
-                    {...register("firstName")}
-                  />
-                  {errors.firstName && (
-                    <p className="text-sm text-destructive">
-                      {errors.firstName.message}
-                    </p>
-                  )}
-                </Field>
-                <Field>
-                  <Label htmlFor="lastName">Příjmení</Label>
-                  <Input
-                    id="lastName"
-                    placeholder="Novák"
-                    {...register("lastName")}
-                  />
-                  {errors.lastName && (
-                    <p className="text-sm text-destructive">
-                      {errors.lastName.message}
-                    </p>
-                  )}
-                </Field>
-              </div>
-              <Field>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="jan.novak@gmail.com"
-                  {...register("email")}
-                />
-                {errors.email && (
-                  <p className="text-sm text-destructive">
-                    {errors.email.message}
-                  </p>
-                )}
-              </Field>
-              <Field>
-                <Label htmlFor="phone">Telefon</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="+420 123 456 789"
-                  {...register("phone")}
-                />
-                {errors.phone && (
-                  <p className="text-sm text-destructive">
-                    {errors.phone.message}
-                  </p>
-                )}
-              </Field>
-              <Field>
-                <Label htmlFor="personalId">Rodné číslo</Label>
-                <Input
-                  id="personalId"
-                  placeholder="850712/1234"
-                  maxLength={11}
-                  {...register("personalId")}
-                  onChange={(e) => {
-                    formatPersonalId(e.target.value);
-                    setValue("personalId", formatPersonalId(e.target.value));
-                  }}
-                />
-                {errors.personalId && (
-                  <p className="text-sm text-destructive">
-                    {errors.personalId.message}
-                  </p>
-                )}
-              </Field>
-            </FieldGroup>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Zavřít</Button>
-              </DialogClose>
-              <Button type="submit">Uložit změny</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+        <ClientForm onSubmit={handleCreate} />
       </div>
 
       <Table>
@@ -179,9 +80,55 @@ export default function ClientsPage() {
               <TableCell>{client.personalId}</TableCell>
               <TableCell>{client.age}</TableCell>
               <TableCell>
-                <Button variant="outline" size="sm">
-                  Upravit
-                </Button>
+                <div className="flex space-x-2">
+                  {/* detail */}
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate(`/clients/${client.id}`)}
+                  >
+                    <Eye />
+                  </Button>
+
+                  {/* update */}
+                  <ClientForm
+                    onSubmit={(data) => handleUpdate(client.id, data)}
+                    defaultValues={{ ...client }}
+                    triggerLabel={<Pencil />}
+                    triggerVariant="ghost"
+                    triggerSize="icon"
+                  />
+
+                  {/* delete */}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" className="text-destructive">
+                        <Trash2 />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Opravdu chcete smazat tohoto klienta?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Tato akce nemůže být vrácena. Tímto bude klient trvale
+                          odstraněn, včetně všech jeho dat.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Zrušit</AlertDialogCancel>
+                        <AlertDialogAction
+                          variant="destructive"
+                          onClick={() => {
+                            clientService.deleteById(client.id);
+                          }}
+                        >
+                          Smazat
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </TableCell>
             </TableRow>
           ))}
