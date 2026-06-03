@@ -1,5 +1,6 @@
 import type { Advisor } from "@/types";
-import * as advisorService from "@/services/advisors";
+import { db } from "@/lib/firebase";
+import { collection, doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export function useAdvisors() {
@@ -8,11 +9,23 @@ export function useAdvisors() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    advisorService
-      .getAll()
-      .then(setData)
-      .catch(setError)
-      .finally(() => setLoading(false));
+    const unsubscribe = onSnapshot(
+      collection(db, "advisors"),
+      (snapshot) => {
+        setData(
+          snapshot.docs.map(
+            (doc) => ({ id: doc.id, ...doc.data() }) as Advisor,
+          ),
+        );
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      },
+    );
+
+    return unsubscribe;
   }, []);
 
   return { data, loading, error };
@@ -24,23 +37,23 @@ export function useAdvisor(id: string) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const unsubscribe = onSnapshot(
+      doc(db, "advisors", id),
+      (snapshot) => {
+        setData(
+          snapshot.exists()
+            ? ({ id: snapshot.id, ...snapshot.data() } as Advisor)
+            : null,
+        );
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      },
+    );
 
-    advisorService
-      .getById(id)
-      .then((result) => {
-        if (!cancelled) setData(result);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    return unsubscribe;
   }, [id]);
 
   return { data, loading, error };

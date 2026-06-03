@@ -1,5 +1,6 @@
 import type { Client } from "@/types";
-import * as clientService from "@/services/clients";
+import { db } from "@/lib/firebase";
+import { collection, doc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export function useClients() {
@@ -8,11 +9,21 @@ export function useClients() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    clientService
-      .getAll()
-      .then(setData)
-      .catch(setError)
-      .finally(() => setLoading(false));
+    const unsubscribe = onSnapshot(
+      collection(db, "clients"),
+      (snapshot) => {
+        setData(
+          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Client),
+        );
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      },
+    );
+
+    return unsubscribe;
   }, []);
 
   return { data, loading, error };
@@ -24,23 +35,23 @@ export function useClient(id: string) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const unsubscribe = onSnapshot(
+      doc(db, "clients", id),
+      (snapshot) => {
+        setData(
+          snapshot.exists()
+            ? ({ id: snapshot.id, ...snapshot.data() } as Client)
+            : null,
+        );
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      },
+    );
 
-    clientService
-      .getById(id)
-      .then((result) => {
-        if (!cancelled) setData(result);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    return unsubscribe;
   }, [id]);
 
   return { data, loading, error };

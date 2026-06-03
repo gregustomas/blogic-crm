@@ -1,5 +1,6 @@
 import type { Contract } from "@/types";
-import * as contractService from "@/services/contracts";
+import { db } from "@/lib/firebase";
+import { collection, doc, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export function useContracts() {
@@ -8,11 +9,23 @@ export function useContracts() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    contractService
-      .getAll()
-      .then(setData)
-      .catch(setError)
-      .finally(() => setLoading(false));
+    const unsubscribe = onSnapshot(
+      collection(db, "contracts"),
+      (snapshot) => {
+        setData(
+          snapshot.docs.map(
+            (doc) => ({ id: doc.id, ...doc.data() }) as Contract,
+          ),
+        );
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      },
+    );
+
+    return unsubscribe;
   }, []);
 
   return { data, loading, error };
@@ -24,23 +37,23 @@ export function useContract(id: string) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const unsubscribe = onSnapshot(
+      doc(db, "contracts", id),
+      (snapshot) => {
+        setData(
+          snapshot.exists()
+            ? ({ id: snapshot.id, ...snapshot.data() } as Contract)
+            : null,
+        );
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      },
+    );
 
-    contractService
-      .getById(id)
-      .then((result) => {
-        if (!cancelled) setData(result);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    return unsubscribe;
   }, [id]);
 
   return { data, loading, error };
@@ -52,23 +65,23 @@ export function useContractsByClient(clientId: string) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const unsubscribe = onSnapshot(
+      query(collection(db, "contracts"), where("clientId", "==", clientId)),
+      (snapshot) => {
+        setData(
+          snapshot.docs.map(
+            (doc) => ({ id: doc.id, ...doc.data() }) as Contract,
+          ),
+        );
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      },
+    );
 
-    contractService
-      .getByClientId(clientId)
-      .then((result) => {
-        if (!cancelled) setData(result);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    return unsubscribe;
   }, [clientId]);
 
   return { data, loading, error };
@@ -80,23 +93,26 @@ export function useContractsByAdvisor(advisorId: string) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    const unsubscribe = onSnapshot(
+      query(
+        collection(db, "contracts"),
+        where("participantIds", "array-contains", advisorId),
+      ),
+      (snapshot) => {
+        setData(
+          snapshot.docs.map(
+            (doc) => ({ id: doc.id, ...doc.data() }) as Contract,
+          ),
+        );
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      },
+    );
 
-    contractService
-      .getByAdvisorId(advisorId)
-      .then((result) => {
-        if (!cancelled) setData(result);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    return unsubscribe;
   }, [advisorId]);
 
   return { data, loading, error };
