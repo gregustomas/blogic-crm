@@ -40,25 +40,27 @@ function formatLocalNumber(value: string): string {
   return digits.replace(/(\d{3})(?=\d)/g, "$1 ");
 }
 
+interface UserFormLabels {
+  trigger: React.ReactNode;
+  dialogTitle: string;
+  description: string;
+}
+
 interface UserFormProps {
   onSubmit: (data: UserFormData) => Promise<void>;
   defaultValues?: UserFormData;
-  triggerLabel?: React.ReactNode;
+  labels: UserFormLabels;
   triggerVariant?: "default" | "outline" | "ghost";
   triggerSize?: "default" | "sm" | "icon";
 }
 
-export function ClientForm({
+export function UserForm({
   onSubmit,
   defaultValues,
-  triggerLabel = "Přidat klienta",
+  labels,
   triggerVariant = "outline",
   triggerSize = "default",
 }: UserFormProps) {
-  const dialogTitle = defaultValues ? "Upravit klienta" : "Nový klient";
-  const dialogDescription = defaultValues
-    ? "Upravte informace o klientovi."
-    : "Zadejte informace o novém klientovi.";
   const [open, setOpen] = useState(false);
   const [prefix, setPrefix] = useState("+420");
   const [localNumber, setLocalNumber] = useState("");
@@ -93,14 +95,14 @@ export function ClientForm({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={triggerVariant} size={triggerSize}>
-          {triggerLabel}
+          {labels.trigger}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <DialogHeader className="mb-4">
-            <DialogTitle>{dialogTitle}</DialogTitle>
-            <DialogDescription>{dialogDescription}</DialogDescription>
+            <DialogTitle>{labels.dialogTitle}</DialogTitle>
+            <DialogDescription>{labels.description}</DialogDescription>
           </DialogHeader>
           <FieldGroup>
             <div className="flex space-x-2">

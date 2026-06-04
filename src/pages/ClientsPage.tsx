@@ -1,33 +1,13 @@
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useNavigate } from "react-router-dom";
-import { Eye, Pencil, Search, Trash2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { ClientForm } from "@/components/clients/ClientForm";
+import { Search } from "lucide-react";
 import { useClients } from "@/hooks/useClients";
 import * as clientService from "@/services/clients";
-import { fullName, getAgeFromPersonalId } from "@/lib/utils";
+import { getAgeFromPersonalId } from "@/lib/utils";
 import type { UserFormData } from "@/lib/schemas";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { UserForm } from "@/components/user/UserForm";
+import { UserTable } from "@/components/user/UserTable";
 
 async function checkDuplicates(
   email: string,
@@ -52,7 +32,6 @@ async function checkDuplicates(
 
 export default function ClientsPage() {
   const { data: clients } = useClients();
-  const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
   const handleCreate = async (data: UserFormData) => {
@@ -96,7 +75,14 @@ export default function ClientsPage() {
             Počet klientů: {filteredClients?.length ?? 0}
           </p>
         </div>
-        <ClientForm onSubmit={handleCreate} />
+        <UserForm
+          labels={{
+            trigger: "Přidat klienta",
+            dialogTitle: "Přidat nového klienta",
+            description: "Zadejte informace o novém klientovi.",
+          }}
+          onSubmit={handleCreate}
+        />
       </div>
 
       <div className="relative max-w-sm">
@@ -109,98 +95,22 @@ export default function ClientsPage() {
         />
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Jméno</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Telefon</TableHead>
-            <TableHead>Věk</TableHead>
-            <TableHead className="text-right">Akce</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredClients?.length === 0 && (
-            <TableRow>
-              <TableCell
-                colSpan={5}
-                className="h-24 text-center text-muted-foreground"
-              >
-                Žádní klienti
-              </TableCell>
-            </TableRow>
-          )}
-          {filteredClients?.map((client) => (
-            <TableRow
-              key={client.id}
-              onClick={() => navigate(`/clients/${client.id}`)}
-              className="cursor-pointer"
-            >
-              <TableCell>
-                {fullName(client.firstName, client.lastName)}
-              </TableCell>
-              <TableCell>{client.email}</TableCell>
-              <TableCell>{client.phone}</TableCell>
-              <TableCell>{client.age}</TableCell>
-              <TableCell
-                className="text-right"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="flex space-x-2 justify-end">
-                  {/* detail */}
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate(`/clients/${client.id}`)}
-                  >
-                    <Eye />
-                  </Button>
-
-                  {/* update */}
-                  <ClientForm
-                    onSubmit={(data) => handleUpdate(client.id, data)}
-                    defaultValues={{ ...client }}
-                    triggerLabel={<Pencil />}
-                    triggerVariant="ghost"
-                    triggerSize="icon"
-                  />
-
-                  {/* delete */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" className="text-destructive">
-                        <Trash2 />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Opravdu chcete smazat tohoto klienta?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Tato akce nemůže být vrácena. Tímto bude klient trvale
-                          odstraněn, včetně všech jeho dat.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Zrušit</AlertDialogCancel>
-                        <AlertDialogAction
-                          variant="destructive"
-                          onClick={() => {
-                            clientService.deleteById(client.id);
-                            toast.success("Klient úspěšně smazán");
-                          }}
-                        >
-                          Smazat
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <UserTable
+        data={filteredClients ?? []}
+        basePath="/clients"
+        emptyMessage="Žádní klienti"
+        onEdit={handleUpdate}
+        onDelete={async (id) => {
+          await clientService.deleteById(id);
+          toast.success("Klient úspěšně smazán");
+        }}
+        editLabels={{
+          dialogTitle: "Upravit klienta",
+          description: "Upravte informace o klientovi.",
+        }}
+        deleteDialogTitle="Smazat klienta"
+        deleteDialogDescription="Opravdu chcete smazat tohoto klienta?"
+      />
     </div>
   );
 }

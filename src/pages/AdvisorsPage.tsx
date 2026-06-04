@@ -1,33 +1,13 @@
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useNavigate } from "react-router-dom";
-import { Eye, Pencil, Search, Trash2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { Search } from "lucide-react";
 import * as advisorService from "@/services/advisors";
-import { fullName, getAgeFromPersonalId } from "@/lib/utils";
+import { getAgeFromPersonalId } from "@/lib/utils";
 import type { UserFormData } from "@/lib/schemas";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useAdvisors } from "@/hooks/useAdvisors";
-import { AdvisorForm } from "@/components/advisors/AdvisorForm";
+import { UserForm } from "@/components/user/UserForm";
+import { UserTable } from "@/components/user/UserTable";
 
 async function checkDuplicates(
   email: string,
@@ -52,7 +32,6 @@ async function checkDuplicates(
 
 export default function AdvisorsPage() {
   const { data: advisors } = useAdvisors();
-  const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
   const handleCreate = async (data: UserFormData) => {
@@ -96,7 +75,14 @@ export default function AdvisorsPage() {
             Počet poradců: {filteredAdvisors?.length ?? 0}
           </p>
         </div>
-        <AdvisorForm onSubmit={handleCreate} />
+        <UserForm
+          labels={{
+            trigger: "Přidat poradce",
+            dialogTitle: "Přidat nového poradce",
+            description: "Zadejte informace o novém poradci.",
+          }}
+          onSubmit={handleCreate}
+        />
       </div>
 
       <div className="relative max-w-sm">
@@ -109,98 +95,22 @@ export default function AdvisorsPage() {
         />
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Jméno</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Telefon</TableHead>
-            <TableHead>Věk</TableHead>
-            <TableHead className="text-right">Akce</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredAdvisors?.length === 0 && (
-            <TableRow>
-              <TableCell
-                colSpan={5}
-                className="h-24 text-center text-muted-foreground"
-              >
-                Žádní poradci
-              </TableCell>
-            </TableRow>
-          )}
-          {filteredAdvisors?.map((advisor) => (
-            <TableRow
-              key={advisor.id}
-              onClick={() => navigate(`/advisors/${advisor.id}`)}
-              className="cursor-pointer"
-            >
-              <TableCell>
-                {fullName(advisor.firstName, advisor.lastName)}
-              </TableCell>
-              <TableCell>{advisor.email}</TableCell>
-              <TableCell>{advisor.phone}</TableCell>
-              <TableCell>{advisor.age}</TableCell>
-              <TableCell
-                className="text-right"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="flex space-x-2 justify-end">
-                  {/* detail */}
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate(`/advisors/${advisor.id}`)}
-                  >
-                    <Eye />
-                  </Button>
-
-                  {/* update */}
-                  <AdvisorForm
-                    onSubmit={(data) => handleUpdate(advisor.id, data)}
-                    defaultValues={{ ...advisor }}
-                    triggerLabel={<Pencil />}
-                    triggerVariant="ghost"
-                    triggerSize="icon"
-                  />
-
-                  {/* delete */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" className="text-destructive">
-                        <Trash2 />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Opravdu chcete smazat tohoto poradce?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Tato akce nemůže být vrácena. Tímto bude poradce
-                          trvale odstraněn, včetně všech jeho dat.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Zrušit</AlertDialogCancel>
-                        <AlertDialogAction
-                          variant="destructive"
-                          onClick={() => {
-                            advisorService.deleteById(advisor.id);
-                            toast.success("Poradce úspěšně smazán");
-                          }}
-                        >
-                          Smazat
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <UserTable
+        data={filteredAdvisors ?? []}
+        basePath="/advisors"
+        emptyMessage="Žádní poradci"
+        onEdit={handleUpdate}
+        onDelete={async (id) => {
+          await advisorService.deleteById(id);
+          toast.success("Poradce úspěšně smazán");
+        }}
+        editLabels={{
+          dialogTitle: "Upravit poradce",
+          description: "Upravte informace o poradci.",
+        }}
+        deleteDialogTitle="Smazat poradce"
+        deleteDialogDescription="Opravdu chcete smazat tohoto poradce?"
+      />
     </div>
   );
 }
