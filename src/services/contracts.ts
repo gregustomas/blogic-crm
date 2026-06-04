@@ -52,6 +52,15 @@ export async function getByClientId(clientId: string): Promise<Contract[]> {
   );
 }
 
+export async function isRegistrationNumberTaken(
+  registrationNumber: string,
+  excludeId?: string,
+): Promise<boolean> {
+  const q = query(contractsRef, where("registrationNumber", "==", registrationNumber));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.some((doc) => doc.id !== excludeId);
+}
+
 export async function getByAdvisorId(advisorId: string): Promise<Contract[]> {
   const q = query(
     contractsRef,

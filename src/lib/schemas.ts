@@ -24,17 +24,26 @@ export const userSchema = z
 
 export type UserFormData = z.infer<typeof userSchema>;
 
-export const contractSchema = z.object({
-  registrationNumber: z.string().min(1, "Evidenční číslo je povinné"),
-  institution: z.string().min(1, "Instituce je povinná"),
-  clientId: z.string().min(1, "Klient je povinný"),
-  managerId: z.string().min(1, "Správce je povinný"),
-  participantIds: z
-    .array(z.string())
-    .min(1, "Alespoň jeden účastník je povinný"),
-  signedAt: z.string().min(1, "Datum podpisu je povinné"),
-  validFrom: z.string().min(1, "Platnost od je povinná"),
-  validUntil: z.string().optional(),
-});
+export const contractSchema = z
+  .object({
+    registrationNumber: z.string().min(1, "Evidenční číslo je povinné"),
+    institution: z.string().min(1, "Instituce je povinná"),
+    clientId: z.string().min(1, "Klient je povinný"),
+    managerId: z.string().min(1, "Správce je povinný"),
+    participantIds: z
+      .array(z.string())
+      .min(1, "Alespoň jeden účastník je povinný"),
+    signedAt: z.string().min(1, "Datum podpisu je povinné"),
+    validFrom: z.string().min(1, "Platnost od je povinná"),
+    validUntil: z.string().optional(),
+  })
+  .refine(
+    (data) => !data.validUntil || data.validFrom <= data.validUntil,
+    { message: "Platnost do musí být po datu platnosti od", path: ["validUntil"] },
+  )
+  .refine(
+    (data) => data.signedAt <= data.validFrom,
+    { message: "Datum podpisu musí být před nebo v den platnosti od", path: ["signedAt"] },
+  );
 
 export type ContractFormData = z.infer<typeof contractSchema>;

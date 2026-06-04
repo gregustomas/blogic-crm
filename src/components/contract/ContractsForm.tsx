@@ -22,12 +22,27 @@ import { fullName } from "@/lib/utils";
 import { ComboboxSelect } from "../ui/combobox";
 import { ParticipantsSelect } from "./ParticipantsSelect";
 
+interface ContractsFormLabels {
+  trigger: React.ReactNode;
+  dialogTitle: string;
+  description: string;
+}
+
 interface ContractsFormProps {
   onSubmit: (data: ContractFormData) => Promise<void>;
   defaultValues?: ContractFormData;
+  labels: ContractsFormLabels;
+  triggerVariant?: "default" | "outline" | "ghost";
+  triggerSize?: "default" | "sm" | "icon";
 }
 
-export function ContractsForm({ onSubmit, defaultValues }: ContractsFormProps) {
+export function ContractsForm({
+  onSubmit,
+  defaultValues,
+  labels,
+  triggerVariant = "outline",
+  triggerSize = "default",
+}: ContractsFormProps) {
   const [open, setOpen] = useState(false);
 
   const { data: clients } = useClients();
@@ -110,13 +125,15 @@ export function ContractsForm({ onSubmit, defaultValues }: ContractsFormProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Přidat smlouvu</Button>
+        <Button variant={triggerVariant} size={triggerSize}>
+          {labels.trigger}
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl">
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <DialogHeader className="mb-4">
-            <DialogTitle>Přidat smlouvu</DialogTitle>
-            <DialogDescription>Vyplňte údaje nové smlouvy</DialogDescription>
+            <DialogTitle>{labels.dialogTitle}</DialogTitle>
+            <DialogDescription>{labels.description}</DialogDescription>
           </DialogHeader>
           <FieldGroup>
             <div className="flex gap-2">

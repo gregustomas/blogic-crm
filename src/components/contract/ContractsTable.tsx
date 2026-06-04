@@ -68,7 +68,7 @@ export function ContractsTable({
           <TableHead>Správce</TableHead>
           <TableHead>Platnost od</TableHead>
           <TableHead>Platnost do</TableHead>
-          <TableHead>Účastníci</TableHead>
+          <TableHead>Poradci</TableHead>
           <TableHead className="text-right">Akce</TableHead>
         </TableRow>
       </TableHeader>
