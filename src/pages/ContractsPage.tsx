@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 import * as contractService from "@/services/contracts";
 import { toast } from "sonner";
+import { ContractsForm } from "@/components/contract/ContractsForm";
 
 export default function ContractsPage() {
   const { data: clients } = useClients();
@@ -34,6 +35,7 @@ export default function ContractsPage() {
             Počet smluv: {filteredContracts?.length ?? 0}
           </p>
         </div>
+        <ContractsForm />
       </div>
 
       <div className="relative max-w-sm">
