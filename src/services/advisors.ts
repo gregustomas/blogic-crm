@@ -7,7 +7,9 @@ import {
   doc,
   getDoc,
   getDocs,
+  query,
   updateDoc,
+  where,
 } from "firebase/firestore";
 
 const advisorsRef = collection(db, "advisors");
@@ -38,4 +40,24 @@ export async function update(
 
 export async function deleteById(id: string): Promise<void> {
   await deleteDoc(doc(advisorsRef, id));
+}
+
+export async function isEmailTaken(
+  email: string,
+  excludeId?: string,
+): Promise<boolean> {
+  const snapshot = await getDocs(
+    query(advisorsRef, where("email", "==", email)),
+  );
+  return snapshot.docs.some((doc) => doc.id !== excludeId);
+}
+
+export async function isPersonalIdTaken(
+  personalId: string,
+  excludeId?: string,
+): Promise<boolean> {
+  const snapshot = await getDocs(
+    query(advisorsRef, where("personalId", "==", personalId)),
+  );
+  return snapshot.docs.some((doc) => doc.id !== excludeId);
 }

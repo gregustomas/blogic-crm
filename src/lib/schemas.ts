@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { getAgeFromPersonalId } from "./utils";
 
-export const clientSchema = z
+export const userSchema = z
   .object({
     firstName: z.string().min(1, "Jméno je povinné"),
     lastName: z.string().min(1, "Příjmení je povinné"),
@@ -22,4 +22,4 @@ export const clientSchema = z
     { message: "Klient musí mít 18–100 let", path: ["personalId"] },
   );
 
-export type ClientFormData = z.infer<typeof clientSchema>;
+export type UserFormData = z.infer<typeof userSchema>;

@@ -48,17 +48,17 @@ interface UserFormProps {
   triggerSize?: "default" | "sm" | "icon";
 }
 
-export function ClientForm({
+export function AdvisorForm({
   onSubmit,
   defaultValues,
-  triggerLabel = "Přidat klienta",
+  triggerLabel = "Přidat poradce",
   triggerVariant = "outline",
   triggerSize = "default",
 }: UserFormProps) {
-  const dialogTitle = defaultValues ? "Upravit klienta" : "Nový klient";
+  const dialogTitle = defaultValues ? "Upravit poradce" : "Nový poradce";
   const dialogDescription = defaultValues
-    ? "Upravte informace o klientovi."
-    : "Zadejte informace o novém klientovi.";
+    ? "Upravte informace o poradci."
+    : "Zadejte informace o novém poradci.";
   const [open, setOpen] = useState(false);
   const [prefix, setPrefix] = useState("+420");
   const [localNumber, setLocalNumber] = useState("");

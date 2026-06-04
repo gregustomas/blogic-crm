@@ -24,7 +24,7 @@ import { ClientForm } from "@/components/clients/ClientForm";
 import { useClients } from "@/hooks/useClients";
 import * as clientService from "@/services/clients";
 import { fullName, getAgeFromPersonalId } from "@/lib/utils";
-import type { ClientFormData } from "@/lib/schemas";
+import type { UserFormData } from "@/lib/schemas";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -55,7 +55,7 @@ export default function ClientsPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
-  const handleCreate = async (data: ClientFormData) => {
+  const handleCreate = async (data: UserFormData) => {
     if (await checkDuplicates(data.email, data.personalId)) return;
     await clientService.create({
       ...data,
@@ -64,7 +64,7 @@ export default function ClientsPage() {
     toast.success("Klient úspěšně vytvořen");
   };
 
-  const handleUpdate = async (id: string, data: ClientFormData) => {
+  const handleUpdate = async (id: string, data: UserFormData) => {
     if (await checkDuplicates(data.email, data.personalId, id)) return;
     await clientService.update(id, {
       ...data,

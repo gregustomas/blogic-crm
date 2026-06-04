@@ -1,6 +1,14 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+export const PHONE_PREFIXES = [
+  { label: "CZ +420", value: "+420" },
+  { label: "SK +421", value: "+421" },
+  { label: "PL +48", value: "+48" },
+  { label: "DE +49", value: "+49" },
+  { label: "AT +43", value: "+43" },
+];
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
