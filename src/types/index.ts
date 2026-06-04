@@ -25,7 +25,7 @@ export interface Contract {
   clientId: string;
   managerId: string;
   participantIds: string[];
-  signedAt: Date;
-  validFrom: Date;
-  validUntil: Date | null;
+  signedAt: string;
+  validFrom: string;
+  validUntil: string | null;
 }
