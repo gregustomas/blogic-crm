@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { ContractsForm } from "@/components/contract/ContractsForm";
 import type { ContractFormData } from "@/lib/schemas";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { todayISO } from "@/lib/utils";
 
 type TabFilter = "all" | "active" | "expired";
 
@@ -20,7 +21,7 @@ export default function ContractsPage() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<TabFilter>("all");
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayISO();
 
   const tabFiltered = contracts?.filter((contract) => {
     if (tab === "active")

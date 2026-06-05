@@ -59,3 +59,7 @@ export function formatPersonalId(value: string): string {
 export function fullName(firstName: string, lastName: string) {
   return `${firstName} ${lastName}`;
 }
+
+export function todayISO(): string {
+  return new Date().toISOString().split("T")[0];
+}
