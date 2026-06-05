@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import {
@@ -9,17 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "../ui/alert-dialog";
+import { DeleteDialog } from "../ui/delete-dialog";
 import { UserForm } from "./UserForm";
 import type { UserFormData } from "@/lib/schemas";
 import type { Advisor, Client } from "@/types";
@@ -107,34 +97,11 @@ export function UserTable({
                   onSubmit={(data) => onEdit(row.id, data)}
                 />
 
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>{deleteDialogTitle}</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {deleteDialogDescription}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Zrušit</AlertDialogCancel>
-                      <AlertDialogAction
-                        variant="destructive"
-                        onClick={() => onDelete(row.id)}
-                      >
-                        Smazat
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <DeleteDialog
+                  title={deleteDialogTitle}
+                  description={deleteDialogDescription}
+                  onConfirm={() => onDelete(row.id)}
+                />
               </div>
             </TableCell>
           </TableRow>

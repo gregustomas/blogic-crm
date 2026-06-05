@@ -1,4 +1,4 @@
-import { Eye, Trash2 } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import {
@@ -9,17 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "../ui/alert-dialog";
+import { DeleteDialog } from "../ui/delete-dialog";
 import type { Contract, Client, Advisor } from "@/types";
 import { fullName, cn, todayISO } from "@/lib/utils";
 
@@ -120,35 +110,11 @@ export function ContractsTable({
 
                 {editAction(contract)}
 
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Smazat smlouvu?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Tato akce nemůže být vrácena. Smlouva bude trvale
-                        odstraněna.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Zrušit</AlertDialogCancel>
-                      <AlertDialogAction
-                        variant="destructive"
-                        onClick={() => onDelete(contract.id)}
-                      >
-                        Smazat
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <DeleteDialog
+                  title="Smazat smlouvu?"
+                  description="Tato akce nemůže být vrácena. Smlouva bude trvale odstraněna."
+                  onConfirm={() => onDelete(contract.id)}
+                />
               </div>
             </TableCell>
           </TableRow>

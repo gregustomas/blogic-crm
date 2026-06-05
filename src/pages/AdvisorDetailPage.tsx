@@ -15,7 +15,6 @@ import {
   Mail,
   Pencil,
   Phone,
-  Trash2,
   IdCard,
   CalendarDays,
   ShieldCheck,
@@ -23,17 +22,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserForm } from "@/components/user/UserForm";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { DeleteDialog } from "@/components/ui/delete-dialog";
 import * as advisorService from "@/services/advisors";
 import { getAgeFromPersonalId, fullName, todayISO } from "@/lib/utils";
 import type { UserFormData } from "@/lib/schemas";
@@ -73,7 +62,7 @@ export default function AdvisorDetailPage() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate("/advisors")}
+          onClick={() => navigate(-1)}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -94,27 +83,11 @@ export default function AdvisorDetailPage() {
           triggerSize="icon"
           onSubmit={handleUpdate}
         />
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-destructive">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Smazat poradce?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Tato akce nemůže být vrácena. Poradce bude trvale odstraněn.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Zrušit</AlertDialogCancel>
-              <AlertDialogAction variant="destructive" onClick={handleDelete}>
-                Smazat
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <DeleteDialog
+          title="Smazat poradce?"
+          description="Tato akce nemůže být vrácena. Poradce bude trvale odstraněn."
+          onConfirm={handleDelete}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

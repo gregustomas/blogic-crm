@@ -7,23 +7,12 @@ import {
   Mail,
   Pencil,
   Phone,
-  Trash2,
   IdCard,
   CalendarDays,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserForm } from "@/components/user/UserForm";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { DeleteDialog } from "@/components/ui/delete-dialog";
 import * as clientService from "@/services/clients";
 import { getAgeFromPersonalId, fullName, todayISO } from "@/lib/utils";
 import type { UserFormData } from "@/lib/schemas";
@@ -60,7 +49,7 @@ export default function ClientDetailPage() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate("/clients")}
+          onClick={() => navigate(-1)}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -81,27 +70,11 @@ export default function ClientDetailPage() {
           triggerSize="icon"
           onSubmit={handleUpdate}
         />
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-destructive">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Smazat klienta?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Tato akce nemůže být vrácena. Klient bude trvale odstraněn.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Zrušit</AlertDialogCancel>
-              <AlertDialogAction variant="destructive" onClick={handleDelete}>
-                Smazat
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <DeleteDialog
+          title="Smazat klienta?"
+          description="Tato akce nemůže být vrácena. Klient bude trvale odstraněn."
+          onConfirm={handleDelete}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
