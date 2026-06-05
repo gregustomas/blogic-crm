@@ -58,10 +58,10 @@ export function ParticipantsSelect({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+      <PopoverContent align="start" className="w-[--radix-popover-trigger-width] min-w-64 p-0">
         <Command>
           <CommandInput placeholder="Hledat poradce..." />
-          <CommandList>
+          <CommandList className="max-h-60 overflow-y-auto">
             <CommandEmpty>Žádný poradce nenalezen</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {

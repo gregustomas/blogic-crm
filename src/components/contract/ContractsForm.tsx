@@ -250,7 +250,7 @@ export function ContractsForm({
               )}
             </Field>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Field>
                 <Label htmlFor="signedAt">Datum podpisu</Label>
                 <Input id="signedAt" type="date" {...register("signedAt")} />

@@ -9,16 +9,30 @@ import * as contractService from "@/services/contracts";
 import { toast } from "sonner";
 import { ContractsForm } from "@/components/contract/ContractsForm";
 import type { ContractFormData } from "@/lib/schemas";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+type TabFilter = "all" | "active" | "expired";
 
 export default function ContractsPage() {
   const { data: clients } = useClients();
   const { data: advisors } = useAdvisors();
   const { data: contracts } = useContracts();
   const [search, setSearch] = useState("");
+  const [tab, setTab] = useState<TabFilter>("all");
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const tabFiltered = contracts?.filter((contract) => {
+    if (tab === "active")
+      return !contract.validUntil || contract.validUntil >= today;
+    if (tab === "expired")
+      return !!contract.validUntil && contract.validUntil < today;
+    return true;
+  });
 
   const filteredContracts =
     search.length >= 3
-      ? contracts?.filter((contract) => {
+      ? tabFiltered?.filter((contract) => {
           const q = search.toLowerCase();
           const client = clients?.find((c) => c.id === contract.clientId);
           const manager = advisors?.find((a) => a.id === contract.managerId);
@@ -33,7 +47,7 @@ export default function ContractsPage() {
               .includes(q)
           );
         })
-      : contracts;
+      : tabFiltered;
 
   const handleCreate = async (data: ContractFormData) => {
     const taken = await contractService.isRegistrationNumberTaken(
@@ -94,6 +108,14 @@ export default function ContractsPage() {
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
+
+      <Tabs value={tab} onValueChange={(v) => setTab(v as TabFilter)}>
+        <TabsList>
+          <TabsTrigger value="all">Všechny</TabsTrigger>
+          <TabsTrigger value="active">Platné</TabsTrigger>
+          <TabsTrigger value="expired">Prošlé</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <ContractsTable
         data={filteredContracts ?? []}

@@ -21,7 +21,7 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import type { Contract, Client, Advisor } from "@/types";
-import { fullName } from "@/lib/utils";
+import { fullName, cn } from "@/lib/utils";
 
 interface ContractsTableProps {
   data: Contract[];
@@ -94,7 +94,15 @@ export function ContractsTable({
             <TableCell>{clientName(contract.clientId)}</TableCell>
             <TableCell>{advisorName(contract.managerId)}</TableCell>
             <TableCell>{formatDate(contract.validFrom)}</TableCell>
-            <TableCell>{formatDate(contract.validUntil)}</TableCell>
+            <TableCell
+              className={cn(
+                contract.validUntil && contract.validUntil < new Date().toISOString().split("T")[0]
+                  ? "text-destructive"
+                  : "",
+              )}
+            >
+              {formatDate(contract.validUntil)}
+            </TableCell>
             <TableCell>{contract.participantIds.length}</TableCell>
             {/* akce */}
             <TableCell
