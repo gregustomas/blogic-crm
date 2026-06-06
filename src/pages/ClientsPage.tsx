@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { UserForm } from "@/components/user/UserForm";
 import { UserTable } from "@/components/user/UserTable";
+import { ExportButton } from "@/components/ui/ExportButton";
 
 async function checkDuplicates(
   email: string,
@@ -66,6 +67,16 @@ export default function ClientsPage() {
         })
       : clients;
 
+  const exportRows =
+    filteredClients?.map((c) => ({
+      Jmeno: c.firstName,
+      Prijmeni: c.lastName,
+      Email: c.email,
+      Telefon: c.phone,
+      "Rodne cislo": c.personalId,
+      Vek: c.age,
+    })) ?? [];
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-start justify-between">
@@ -75,14 +86,21 @@ export default function ClientsPage() {
             Počet klientů: {filteredClients?.length ?? 0}
           </p>
         </div>
-        <UserForm
-          labels={{
-            trigger: "Přidat klienta",
-            dialogTitle: "Přidat nového klienta",
-            description: "Zadejte informace o novém klientovi.",
-          }}
-          onSubmit={handleCreate}
-        />
+        <div className="flex gap-2">
+          <ExportButton
+            rows={exportRows}
+            filename="klienti"
+            pdfTitle="Seznam klientu"
+          />
+          <UserForm
+            labels={{
+              trigger: "Přidat klienta",
+              dialogTitle: "Přidat nového klienta",
+              description: "Zadejte informace o novém klientovi.",
+            }}
+            onSubmit={handleCreate}
+          />
+        </div>
       </div>
 
       <div className="relative max-w-sm">

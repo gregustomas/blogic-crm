@@ -10,7 +10,9 @@ import { toast } from "sonner";
 import { ContractsForm } from "@/components/contract/ContractsForm";
 import type { ContractFormData } from "@/lib/schemas";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { todayISO } from "@/lib/utils";
+import { todayISO, fullName } from "@/lib/utils";
+import { ExportButton } from "@/components/ui/ExportButton";
+import { formatExportDate } from "@/lib/export";
 
 type TabFilter = "all" | "active" | "expired";
 
@@ -49,6 +51,21 @@ export default function ContractsPage() {
           );
         })
       : tabFiltered;
+
+  const exportRows =
+    filteredContracts?.map((c) => {
+      const client = clients?.find((x) => x.id === c.clientId);
+      const manager = advisors?.find((x) => x.id === c.managerId);
+      return {
+        ID: c.registrationNumber,
+        Instituce: c.institution,
+        Klient: client ? fullName(client.firstName, client.lastName) : "",
+        Spravce: manager ? fullName(manager.firstName, manager.lastName) : "",
+        Podepsano: formatExportDate(c.signedAt),
+        "Platnost od": formatExportDate(c.validFrom),
+        "Platnost do": formatExportDate(c.validUntil),
+      };
+    }) ?? [];
 
   const handleCreate = async (data: ContractFormData) => {
     const taken = await contractService.isRegistrationNumberTaken(
@@ -90,14 +107,21 @@ export default function ContractsPage() {
             Počet smluv: {filteredContracts?.length ?? 0}
           </p>
         </div>
-        <ContractsForm
-          labels={{
-            trigger: "Přidat smlouvu",
-            dialogTitle: "Přidat smlouvu",
-            description: "Vyplňte údaje nové smlouvy",
-          }}
-          onSubmit={handleCreate}
-        />
+        <div className="flex gap-2">
+          <ExportButton
+            rows={exportRows}
+            filename="smlouvy"
+            pdfTitle="Seznam smluv"
+          />
+          <ContractsForm
+            labels={{
+              trigger: "Přidat smlouvu",
+              dialogTitle: "Přidat smlouvu",
+              description: "Vyplňte údaje nové smlouvy",
+            }}
+            onSubmit={handleCreate}
+          />
+        </div>
       </div>
 
       <div className="relative max-w-sm">
