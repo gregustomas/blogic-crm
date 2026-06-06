@@ -1,5 +1,10 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { FileTextIcon, UsersIcon, UserIcon } from "lucide-react";
+import {
+  FileTextIcon,
+  UsersIcon,
+  UserIcon,
+  LayoutDashboard,
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -23,9 +28,10 @@ const user = {
 };
 
 const navItems = [
-  { title: "Smlouvy", url: "/contracts", icon: FileTextIcon },
-  { title: "Klienti", url: "/clients", icon: UsersIcon },
-  { title: "Poradci", url: "/advisors", icon: UserIcon },
+  { title: "Přehled", url: "/", icon: LayoutDashboard, end: true },
+  { title: "Smlouvy", url: "/contracts", icon: FileTextIcon, end: false },
+  { title: "Klienti", url: "/clients", icon: UsersIcon, end: false },
+  { title: "Poradci", url: "/advisors", icon: UserIcon, end: false },
 ];
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
@@ -44,10 +50,17 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.url}>
-                <SidebarMenuButton asChild tooltip={item.title} isActive={pathname === item.url}>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.title}
+                  isActive={pathname === item.url}
+                >
                   <NavLink
                     to={item.url}
-                    className={({ isActive }) => (isActive ? "font-medium" : "")}
+                    end={item.end}
+                    className={({ isActive }) =>
+                      isActive ? "font-medium" : ""
+                    }
                   >
                     <item.icon />
                     <span>{item.title}</span>

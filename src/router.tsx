@@ -7,12 +7,13 @@ import ClientDetailPage from "@/pages/ClientDetailPage";
 import AdvisorsPage from "@/pages/AdvisorsPage";
 import AdvisorDetailPage from "@/pages/AdvisorDetailPage";
 import LoginPage from "@/pages/LoginPage";
+import Dashboard from "./pages/Dashboard";
 
 export const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: "/", element: <ContractsPage /> },
+      { path: "/", element: <Dashboard /> },
       { path: "/contracts", element: <ContractsPage /> },
       { path: "/contracts/:id", element: <ContractDetailPage /> },
       { path: "/clients", element: <ClientsPage /> },
