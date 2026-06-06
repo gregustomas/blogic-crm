@@ -21,12 +21,6 @@ import {
 import { NavUser } from "@/components/nav-user";
 import bLogo from "@/assets/b-logo.svg";
 
-const user = {
-  name: "Admin",
-  email: "admin@blogic.cz",
-  avatar: "",
-};
-
 const navItems = [
   { title: "Přehled", url: "/", icon: LayoutDashboard, end: true },
   { title: "Smlouvy", url: "/contracts", icon: FileTextIcon, end: false },
@@ -72,7 +66,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
