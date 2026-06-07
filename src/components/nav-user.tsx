@@ -19,7 +19,7 @@ export function NavUser() {
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="px-2 text-muted-foreground">{email}</span>
+      <span className="px-2 text-sidebar-foreground/70">{email}</span>
       <Separator />
       <SidebarMenu>
         <SidebarMenuItem>

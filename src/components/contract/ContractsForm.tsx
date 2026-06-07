@@ -40,7 +40,7 @@ export function ContractsForm({
   onSubmit,
   defaultValues,
   labels,
-  triggerVariant = "outline",
+  triggerVariant = "default",
   triggerSize = "default",
 }: ContractsFormProps) {
   const [open, setOpen] = useState(false);

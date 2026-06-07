@@ -58,7 +58,7 @@ export function UserForm({
   onSubmit,
   defaultValues,
   labels,
-  triggerVariant = "outline",
+  triggerVariant = "default",
   triggerSize = "default",
 }: UserFormProps) {
   const [open, setOpen] = useState(false);

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import blogicLogo from "@/assets/blogic-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,6 +38,7 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
+      <img src={blogicLogo} alt="Blogic" className="h-12 mx-auto object-contain" />
       <div className="rounded-xl border bg-card p-8 shadow-sm space-y-6">
         <div>
           <h1 className="text-xl font-semibold">Přihlásit se do Blogic CRM</h1>
