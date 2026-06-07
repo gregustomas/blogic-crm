@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   FileTextIcon,
   UsersIcon,
   UserIcon,
   LayoutDashboard,
+  X,
 } from "lucide-react";
 import {
   Sidebar,
@@ -19,6 +21,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { NavUser } from "@/components/nav-user";
+import { Button } from "@/components/ui/button";
 import bLogo from "@/assets/b-logo.svg";
 
 const navItems = [
@@ -30,13 +33,27 @@ const navItems = [
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { pathname } = useLocation();
-  const { open } = useSidebar();
+  const { open, isMobile, setOpenMobile } = useSidebar();
+
+  useEffect(() => {
+    if (isMobile) setOpenMobile(false);
+  }, [pathname]);
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="flex flex-row items-center gap-2 p-4">
         <img src={bLogo} alt="BLogic" className="size-6 shrink-0" />
         {open && <span className="font-semibold text-sm">Blogic CRM</span>}
+        {isMobile && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto"
+            onClick={() => setOpenMobile(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

@@ -49,6 +49,7 @@ export function ContractsTable({
   };
 
   return (
+    <div className="w-full overflow-x-auto">
     <Table>
       <TableHeader>
         <TableRow>
@@ -121,5 +122,6 @@ export function ContractsTable({
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 }

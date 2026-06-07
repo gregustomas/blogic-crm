@@ -25,7 +25,7 @@ export default function Layout() {
     <TooltipProvider>
       <SidebarProvider>
         <AppSidebar />
-        <main className="flex-1 p-4">
+        <main className="flex-1 min-w-0 p-4">
           <SidebarTrigger className="mb-4" />
           <Toaster position="bottom-right" />
           <Outlet />

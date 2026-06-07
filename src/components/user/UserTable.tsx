@@ -42,6 +42,7 @@ export function UserTable({
   const navigate = useNavigate();
 
   return (
+    <div className="w-full overflow-x-auto">
     <Table>
       <TableHeader>
         <TableRow>
@@ -108,5 +109,6 @@ export function UserTable({
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 }
