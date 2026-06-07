@@ -229,3 +229,15 @@ VITE_FIREBASE_STORAGE_BUCKET
 VITE_FIREBASE_MESSAGING_SENDER_ID
 VITE_FIREBASE_APP_ID
 ```
+
+---
+
+## Možná vylepšení
+
+| Oblast | Popis |
+|---|---|
+| Testování | Unit testy utils/schémat (Vitest). |
+| Role a oprávnění | Přidat role `admin` / `readonly` přes Firebase Auth custom claims a Firestore Security Rules. |
+| E-mailové notifikace | Cloud Functions + Cloud Scheduler pro denní e-mail s přehledem smluv blížících se expiraci. |
+| Auditní log | Kolekce `audit_log` plněná Cloud Functions pro historii změn (kdo, kdy, co). |
+| Offline podpora | Povolit Firestore IndexedDB persistenci + Vite PWA plugin pro funkčnost bez sítě. |
