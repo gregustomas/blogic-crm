@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import { useClients } from "@/hooks/useClients";
 import { useContracts } from "@/hooks/useContracts";
-import { Pencil, Search } from "lucide-react";
+import { Pencil, Plus, Search } from "lucide-react";
 import { useState } from "react";
 import * as contractService from "@/services/contracts";
 import { toast } from "sonner";
@@ -103,7 +103,7 @@ export default function ContractsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Smlouvy</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -118,7 +118,12 @@ export default function ContractsPage() {
           />
           <ContractsForm
             labels={{
-              trigger: "Přidat smlouvu",
+              trigger: (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Přidat smlouvu
+                </>
+              ),
               dialogTitle: "Přidat smlouvu",
               description: "Vyplňte údaje nové smlouvy",
             }}

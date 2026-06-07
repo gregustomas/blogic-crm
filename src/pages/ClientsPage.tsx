@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { TableSkeleton } from "@/components/table-skeleton";
 import { useClients } from "@/hooks/useClients";
 import * as clientService from "@/services/clients";
@@ -99,7 +99,7 @@ export default function ClientsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Klienti</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -114,7 +114,12 @@ export default function ClientsPage() {
           />
           <UserForm
             labels={{
-              trigger: "Přidat klienta",
+              trigger: (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Přidat klienta
+                </>
+              ),
               dialogTitle: "Přidat nového klienta",
               description: "Zadejte informace o novém klientovi.",
             }}

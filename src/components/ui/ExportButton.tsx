@@ -26,8 +26,8 @@ export function ExportButton({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" disabled={!rows.length}>
-          <Download className="h-4 w-4 mr-2" />
-          Exportovat
+          <Download className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Exportovat</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

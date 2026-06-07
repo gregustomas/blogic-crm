@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { TableSkeleton } from "@/components/table-skeleton";
 import * as advisorService from "@/services/advisors";
 import * as contractService from "@/services/contracts";
@@ -110,7 +110,7 @@ export default function AdvisorsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Poradci</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -125,7 +125,12 @@ export default function AdvisorsPage() {
           />
           <UserForm
             labels={{
-              trigger: "Přidat poradce",
+              trigger: (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Přidat poradce
+                </>
+              ),
               dialogTitle: "Přidat nového poradce",
               description: "Zadejte informace o novém poradci.",
             }}
