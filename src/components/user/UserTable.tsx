@@ -13,7 +13,7 @@ import { DeleteDialog } from "../ui/delete-dialog";
 import { UserForm } from "./UserForm";
 import type { UserFormData } from "@/lib/schemas";
 import type { Advisor, Client } from "@/types";
-import { fullName } from "@/lib/utils";
+import { fullName, getAgeFromPersonalId } from "@/lib/utils";
 
 interface UserTableProps {
   data: Array<Client | Advisor>;
@@ -72,7 +72,7 @@ export function UserTable({
             <TableCell>{fullName(row.firstName, row.lastName)}</TableCell>
             <TableCell>{row.email}</TableCell>
             <TableCell>{row.phone}</TableCell>
-            <TableCell>{row.age}</TableCell>
+            <TableCell>{getAgeFromPersonalId(row.personalId) ?? "—"}</TableCell>
             <TableCell
               className="text-right"
               onClick={(e) => e.stopPropagation()}

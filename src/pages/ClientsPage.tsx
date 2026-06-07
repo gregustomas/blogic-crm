@@ -40,7 +40,7 @@ export default function ClientsPage() {
   const handleCreate = async (data: UserFormData) => {
     try {
       if (await checkDuplicates(data.email, data.personalId)) return;
-      await clientService.create({ ...data, age: getAgeFromPersonalId(data.personalId) ?? 0 });
+      await clientService.create({ ...data });
       toast.success("Klient úspěšně vytvořen");
     } catch {
       toast.error("Při vytváření došlo k chybě.");
@@ -50,7 +50,7 @@ export default function ClientsPage() {
   const handleUpdate = async (id: string, data: UserFormData) => {
     try {
       if (await checkDuplicates(data.email, data.personalId, id)) return;
-      await clientService.update(id, { ...data, age: getAgeFromPersonalId(data.personalId) ?? 0 });
+      await clientService.update(id, { ...data });
       toast.success("Klient úspěšně aktualizován");
     } catch {
       toast.error("Při úpravě došlo k chybě.");
@@ -94,7 +94,7 @@ export default function ClientsPage() {
       Email: c.email,
       Telefon: c.phone,
       "Rodne cislo": c.personalId,
-      Vek: c.age,
+      Vek: getAgeFromPersonalId(c.personalId) ?? "",
     })) ?? [];
 
   return (

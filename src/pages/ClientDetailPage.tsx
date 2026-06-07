@@ -90,7 +90,6 @@ export default function ClientDetailPage() {
           email={client.email}
           phone={client.phone}
           personalId={client.personalId}
-          age={client.age}
         />
 
         {/* přehled smluv */}

@@ -113,7 +113,6 @@ export default function AdvisorDetailPage() {
           email={advisor.email}
           phone={advisor.phone}
           personalId={advisor.personalId}
-          age={advisor.age}
         />
 
         {/* přehled smluv */}

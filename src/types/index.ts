@@ -5,7 +5,6 @@ export interface Client {
   email: string;
   phone: string;
   personalId: string;
-  age: number;
 }
 
 export interface Advisor {
@@ -15,7 +14,6 @@ export interface Advisor {
   email: string;
   phone: string;
   personalId: string;
-  age: number;
 }
 
 export interface Contract {

@@ -34,7 +34,7 @@ export function getAgeFromPersonalId(personalId: string): number | null {
   const day = parseInt(cleaned.substring(4, 6));
   const birth = new Date(year, month - 1, day);
 
-  // validace že datum skutečně existuje (JS posouvá neplatné dny)
+  // validace že datum skutečně existuje
   if (
     birth.getFullYear() !== year ||
     birth.getMonth() !== month - 1 ||

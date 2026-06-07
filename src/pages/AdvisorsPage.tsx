@@ -40,7 +40,7 @@ export default function AdvisorsPage() {
   const handleCreate = async (data: UserFormData) => {
     try {
       if (await checkDuplicates(data.email, data.personalId)) return;
-      await advisorService.create({ ...data, age: getAgeFromPersonalId(data.personalId) ?? 0 });
+      await advisorService.create({ ...data });
       toast.success("Poradce úspěšně vytvořen");
     } catch {
       toast.error("Při vytváření došlo k chybě.");
@@ -50,7 +50,7 @@ export default function AdvisorsPage() {
   const handleUpdate = async (id: string, data: UserFormData) => {
     try {
       if (await checkDuplicates(data.email, data.personalId, id)) return;
-      await advisorService.update(id, { ...data, age: getAgeFromPersonalId(data.personalId) ?? 0 });
+      await advisorService.update(id, { ...data });
       toast.success("Poradce úspěšně aktualizován");
     } catch {
       toast.error("Při úpravě došlo k chybě.");
@@ -105,7 +105,7 @@ export default function AdvisorsPage() {
       Email: a.email,
       Telefon: a.phone,
       "Rodne cislo": a.personalId,
-      Vek: a.age,
+      Vek: getAgeFromPersonalId(a.personalId) ?? "",
     })) ?? [];
 
   return (
