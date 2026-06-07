@@ -19,7 +19,7 @@ import { UserInfoGrid } from "@/components/user/UserInfoGrid";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import * as advisorService from "@/services/advisors";
 import * as contractService from "@/services/contracts";
-import { getAgeFromPersonalId, fullName, todayISO } from "@/lib/utils";
+import { fullName, todayISO } from "@/lib/utils";
 import type { UserFormData } from "@/lib/schemas";
 import { toast } from "sonner";
 
@@ -36,10 +36,7 @@ export default function AdvisorDetailPage() {
 
   const handleUpdate = async (data: UserFormData) => {
     try {
-      await advisorService.update(id!, {
-        ...data,
-        age: getAgeFromPersonalId(data.personalId) ?? 0,
-      });
+      await advisorService.update(id!, { ...data });
       toast.success("Poradce úspěšně aktualizován");
     } catch {
       toast.error("Při úpravě došlo k chybě.");
