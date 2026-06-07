@@ -2,18 +2,12 @@ import { useClient } from "@/hooks/useClients";
 import { useContractsByClient } from "@/hooks/useContracts";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  Mail,
-  Pencil,
-  Phone,
-  IdCard,
-  CalendarDays,
-} from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DetailSkeleton } from "@/components/detail-skeleton";
 import { PageError } from "@/components/ui/page-error";
 import { UserForm } from "@/components/user/UserForm";
+import { UserInfoGrid } from "@/components/user/UserInfoGrid";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import * as clientService from "@/services/clients";
 import * as contractService from "@/services/contracts";
@@ -92,39 +86,12 @@ export default function ClientDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* klient info */}
-        <div className="lg:col-span-2 p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="flex items-start gap-3">
-              <Mail className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Email</p>
-                <p className="font-medium break-all">{client.email}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Phone className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Telefon</p>
-                <p className="font-medium">{client.phone}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <IdCard className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Rodné číslo</p>
-                <p className="font-medium">{client.personalId}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <CalendarDays className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Věk</p>
-                <p className="font-medium">{client.age} let</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <UserInfoGrid
+          email={client.email}
+          phone={client.phone}
+          personalId={client.personalId}
+          age={client.age}
+        />
 
         {/* přehled smluv */}
         <div className="border-l-4 border-muted pl-4 flex flex-col gap-5">

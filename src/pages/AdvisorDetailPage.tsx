@@ -10,20 +10,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  ArrowLeft,
-  Mail,
-  Pencil,
-  Phone,
-  IdCard,
-  CalendarDays,
-  ShieldCheck,
-  User,
-} from "lucide-react";
+import { ArrowLeft, Pencil, ShieldCheck, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DetailSkeleton } from "@/components/detail-skeleton";
 import { PageError } from "@/components/ui/page-error";
 import { UserForm } from "@/components/user/UserForm";
+import { UserInfoGrid } from "@/components/user/UserInfoGrid";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import * as advisorService from "@/services/advisors";
 import * as contractService from "@/services/contracts";
@@ -44,7 +36,10 @@ export default function AdvisorDetailPage() {
 
   const handleUpdate = async (data: UserFormData) => {
     try {
-      await advisorService.update(id!, { ...data, age: getAgeFromPersonalId(data.personalId) ?? 0 });
+      await advisorService.update(id!, {
+        ...data,
+        age: getAgeFromPersonalId(data.personalId) ?? 0,
+      });
       toast.success("Poradce úspěšně aktualizován");
     } catch {
       toast.error("Při úpravě došlo k chybě.");
@@ -55,7 +50,9 @@ export default function AdvisorDetailPage() {
     try {
       const managerContracts = contracts.filter((c) => c.managerId === id);
       if (managerContracts.length > 0) {
-        toast.error(`Poradce je správcem ${managerContracts.length} smluv. Nejprve změňte správce.`);
+        toast.error(
+          `Poradce je správcem ${managerContracts.length} smluv. Nejprve změňte správce.`,
+        );
         return;
       }
       const participantContracts = contracts.filter((c) => c.managerId !== id);
@@ -64,8 +61,8 @@ export default function AdvisorDetailPage() {
           participantContracts.map((c) =>
             contractService.update(c.id, {
               participantIds: c.participantIds.filter((pid) => pid !== id),
-            })
-          )
+            }),
+          ),
         );
       }
       await advisorService.deleteById(id!);
@@ -112,39 +109,12 @@ export default function AdvisorDetailPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* poradce info */}
-        <div className="lg:col-span-2 p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="flex items-start gap-3">
-              <Mail className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Email</p>
-                <p className="font-medium break-all">{advisor.email}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Phone className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Telefon</p>
-                <p className="font-medium">{advisor.phone}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <IdCard className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Rodné číslo</p>
-                <p className="font-medium">{advisor.personalId}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <CalendarDays className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
-              <div>
-                <p className="text-sm text-muted-foreground">Věk</p>
-                <p className="font-medium">{advisor.age} let</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <UserInfoGrid
+          email={advisor.email}
+          phone={advisor.phone}
+          personalId={advisor.personalId}
+          age={advisor.age}
+        />
 
         {/* přehled smluv */}
         <div className="border-l-4 border-muted pl-4 flex flex-col gap-5">
