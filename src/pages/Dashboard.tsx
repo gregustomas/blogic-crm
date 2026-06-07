@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   CheckCircle2,
 } from "lucide-react";
+import { DashboardSkeleton } from "@/components/dashboard-skeleton";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { ContractsBarChart } from "@/components/dashboard/ContractsBarChart";
 import { ContractsPieChart } from "@/components/dashboard/ContractsPieChart";
@@ -25,7 +26,7 @@ const in30ISO = (() => {
 })();
 
 export default function Dashboard() {
-  const { data: contracts } = useContracts();
+  const { data: contracts, loading } = useContracts();
   const { data: clients } = useClients();
   const { data: advisors } = useAdvisors();
 
@@ -74,6 +75,8 @@ export default function Dashboard() {
     month: "long",
     year: "numeric",
   });
+
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="p-6 space-y-6">

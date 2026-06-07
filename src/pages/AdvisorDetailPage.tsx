@@ -21,6 +21,8 @@ import {
   User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DetailSkeleton } from "@/components/detail-skeleton";
+import { PageError } from "@/components/ui/page-error";
 import { UserForm } from "@/components/user/UserForm";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import * as advisorService from "@/services/advisors";
@@ -31,7 +33,7 @@ import { toast } from "sonner";
 export default function AdvisorDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: advisor } = useAdvisor(id!);
+  const { data: advisor, loading, error } = useAdvisor(id!);
   const { data: contracts } = useContractsByAdvisor(id!);
   const { data: clients } = useClients();
   const today = todayISO();
@@ -53,17 +55,15 @@ export default function AdvisorDetailPage() {
     navigate("/advisors");
   };
 
-  if (!advisor) return <p>Poradce neexistuje</p>;
+  if (loading) return <DetailSkeleton />;
+  if (error) return <PageError message="Nepodařilo se načíst poradce." />;
+  if (!advisor) return <PageError message="Poradce neexistuje." />;
 
   return (
     <div className="p-6 space-y-6 w-full overflow-hidden">
       {/* header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate(-1)}
-        >
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1">

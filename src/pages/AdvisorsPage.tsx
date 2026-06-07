@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import { TableSkeleton } from "@/components/table-skeleton";
 import * as advisorService from "@/services/advisors";
 import { getAgeFromPersonalId } from "@/lib/utils";
 import type { UserFormData } from "@/lib/schemas";
@@ -32,7 +33,7 @@ async function checkDuplicates(
 }
 
 export default function AdvisorsPage() {
-  const { data: advisors } = useAdvisors();
+  const { data: advisors, loading } = useAdvisors();
   const [search, setSearch] = useState("");
 
   const handleCreate = async (data: UserFormData) => {
@@ -52,6 +53,8 @@ export default function AdvisorsPage() {
     });
     toast.success("Poradce úspěšně aktualizován");
   };
+
+  if (loading) return <TableSkeleton />;
 
   const filteredAdvisors =
     search.length >= 3

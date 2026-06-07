@@ -1,4 +1,5 @@
 import { ContractsTable } from "@/components/contract/ContractsTable";
+import { TableSkeleton } from "@/components/table-skeleton";
 import { Input } from "@/components/ui/input";
 import { useAdvisors } from "@/hooks/useAdvisors";
 import { useClients } from "@/hooks/useClients";
@@ -19,9 +20,42 @@ type TabFilter = "all" | "active" | "expired";
 export default function ContractsPage() {
   const { data: clients } = useClients();
   const { data: advisors } = useAdvisors();
-  const { data: contracts } = useContracts();
+  const { data: contracts, loading } = useContracts();
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<TabFilter>("all");
+
+  const handleCreate = async (data: ContractFormData) => {
+    const taken = await contractService.isRegistrationNumberTaken(
+      data.registrationNumber,
+    );
+    if (taken) {
+      toast.error("Smlouva s tímto evidenčním číslem již existuje");
+      return;
+    }
+    await contractService.create({
+      ...data,
+      validUntil: data.validUntil || null,
+    });
+    toast.success("Smlouva úspěšně vytvořena");
+  };
+
+  const handleUpdate = async (id: string, data: ContractFormData) => {
+    const taken = await contractService.isRegistrationNumberTaken(
+      data.registrationNumber,
+      id,
+    );
+    if (taken) {
+      toast.error("Smlouva s tímto evidenčním číslem již existuje");
+      return;
+    }
+    await contractService.update(id, {
+      ...data,
+      validUntil: data.validUntil || null,
+    });
+    toast.success("Smlouva úspěšně upravena");
+  };
+
+  if (loading) return <TableSkeleton />;
 
   const today = todayISO();
 
@@ -66,37 +100,6 @@ export default function ContractsPage() {
         "Platnost do": formatExportDate(c.validUntil),
       };
     }) ?? [];
-
-  const handleCreate = async (data: ContractFormData) => {
-    const taken = await contractService.isRegistrationNumberTaken(
-      data.registrationNumber,
-    );
-    if (taken) {
-      toast.error("Smlouva s tímto evidenčním číslem již existuje");
-      return;
-    }
-    await contractService.create({
-      ...data,
-      validUntil: data.validUntil || null,
-    });
-    toast.success("Smlouva úspěšně vytvořena");
-  };
-
-  const handleUpdate = async (id: string, data: ContractFormData) => {
-    const taken = await contractService.isRegistrationNumberTaken(
-      data.registrationNumber,
-      id,
-    );
-    if (taken) {
-      toast.error("Smlouva s tímto evidenčním číslem již existuje");
-      return;
-    }
-    await contractService.update(id, {
-      ...data,
-      validUntil: data.validUntil || null,
-    });
-    toast.success("Smlouva úspěšně upravena");
-  };
 
   return (
     <div className="p-6 space-y-6">

@@ -11,6 +11,8 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DetailSkeleton } from "@/components/detail-skeleton";
+import { PageError } from "@/components/ui/page-error";
 import { UserForm } from "@/components/user/UserForm";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import * as clientService from "@/services/clients";
@@ -21,7 +23,7 @@ import { toast } from "sonner";
 export default function ClientDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: client } = useClient(id!);
+  const { data: client, loading, error } = useClient(id!);
   const { data: contracts } = useContractsByClient(id!);
   const { data: advisors } = useAdvisors();
   const today = todayISO();
@@ -40,17 +42,15 @@ export default function ClientDetailPage() {
     navigate("/clients");
   };
 
-  if (!client) return <p>Klient neexistuje</p>;
+  if (loading) return <DetailSkeleton />;
+  if (error) return <PageError message="Nepodařilo se načíst klienta." />;
+  if (!client) return <PageError message="Klient neexistuje." />;
 
   return (
     <div className="p-6 space-y-6 w-full overflow-hidden">
       {/* header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate(-1)}
-        >
+        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1">

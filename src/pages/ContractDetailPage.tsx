@@ -16,6 +16,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DetailSkeleton } from "@/components/detail-skeleton";
+import { PageError } from "@/components/ui/page-error";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { ContractsForm } from "@/components/contract/ContractsForm";
 import * as contractService from "@/services/contracts";
@@ -53,7 +55,7 @@ function InfoRow({
 export default function ContractDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: contract } = useContract(id!);
+  const { data: contract, loading, error } = useContract(id!);
   const { data: clients } = useClients();
   const { data: advisors } = useAdvisors();
   const today = todayISO();
@@ -80,26 +82,48 @@ export default function ContractDetailPage() {
     navigate("/contracts");
   };
 
-  if (!contract) return <p>Smlouva neexistuje</p>;
+  if (loading) return <DetailSkeleton infoCount={5} />;
+  if (error) return <PageError message="Nepodařilo se načíst smlouvu." />;
+  if (!contract) return <PageError message="Smlouva neexistuje." />;
 
   const client = clients?.find((c) => c.id === contract.clientId);
   const manager = advisors?.find((a) => a.id === contract.managerId);
   const otherParticipants = (advisors ?? []).filter(
-    (a) => contract.participantIds.includes(a.id) && a.id !== contract.managerId,
+    (a) =>
+      contract.participantIds.includes(a.id) && a.id !== contract.managerId,
   );
 
   const isExpired = !!contract.validUntil && contract.validUntil < today;
   const isIndefinite = !contract.validUntil;
 
-  const statusLabel = isExpired ? "Prošlá" : isIndefinite ? "Na dobu neurčitou" : "Platná";
-  const statusColor = isExpired ? "text-destructive" : isIndefinite ? "text-muted-foreground" : "text-green-600";
-  const statusBarColor = isExpired ? "bg-destructive" : isIndefinite ? "bg-muted-foreground" : "bg-green-500";
+  const statusLabel = isExpired
+    ? "Prošlá"
+    : isIndefinite
+      ? "Na dobu neurčitou"
+      : "Platná";
+  const statusColor = isExpired
+    ? "text-destructive"
+    : isIndefinite
+      ? "text-muted-foreground"
+      : "text-green-600";
+  const statusBarColor = isExpired
+    ? "bg-destructive"
+    : isIndefinite
+      ? "bg-muted-foreground"
+      : "bg-green-500";
 
   const start = new Date(contract.validFrom).getTime();
-  const end = contract.validUntil ? new Date(contract.validUntil).getTime() : null;
+  const end = contract.validUntil
+    ? new Date(contract.validUntil).getTime()
+    : null;
   const now = new Date(today).getTime();
-  const progress = end && end > start ? Math.min(Math.round(((now - start) / (end - start)) * 100), 100) : 0;
-  const diffDays = end ? Math.ceil(Math.abs(end - now) / (1000 * 60 * 60 * 24)) : null;
+  const progress =
+    end && end > start
+      ? Math.min(Math.round(((now - start) / (end - start)) * 100), 100)
+      : 0;
+  const diffDays = end
+    ? Math.ceil(Math.abs(end - now) / (1000 * 60 * 60 * 24))
+    : null;
 
   return (
     <div className="p-6 space-y-6 w-full overflow-hidden">
@@ -138,10 +162,26 @@ export default function ContractDetailPage() {
         {/* info */}
         <div className="lg:col-span-2 p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <InfoRow icon={Hash} label="Číslo smlouvy" value={contract.registrationNumber} />
-            <InfoRow icon={Building2} label="Instituce" value={contract.institution} />
-            <InfoRow icon={PenLine} label="Datum podpisu" value={formatDate(contract.signedAt)} />
-            <InfoRow icon={CalendarCheck} label="Platnost od" value={formatDate(contract.validFrom)} />
+            <InfoRow
+              icon={Hash}
+              label="Číslo smlouvy"
+              value={contract.registrationNumber}
+            />
+            <InfoRow
+              icon={Building2}
+              label="Instituce"
+              value={contract.institution}
+            />
+            <InfoRow
+              icon={PenLine}
+              label="Datum podpisu"
+              value={formatDate(contract.signedAt)}
+            />
+            <InfoRow
+              icon={CalendarCheck}
+              label="Platnost od"
+              value={formatDate(contract.validFrom)}
+            />
             <InfoRow
               icon={CalendarX}
               label="Platnost do"
@@ -155,8 +195,15 @@ export default function ContractDetailPage() {
         <div className="border-l-4 border-muted pl-4 flex flex-col gap-5">
           <p className="text-sm font-medium text-muted-foreground">Status</p>
           <div className="flex items-center gap-2">
-            <div className={cn("h-2.5 w-2.5 rounded-full shrink-0", statusBarColor)} />
-            <span className={cn("font-semibold text-sm", statusColor)}>{statusLabel}</span>
+            <div
+              className={cn(
+                "h-2.5 w-2.5 rounded-full shrink-0",
+                statusBarColor,
+              )}
+            />
+            <span className={cn("font-semibold text-sm", statusColor)}>
+              {statusLabel}
+            </span>
           </div>
           {!isIndefinite && diffDays !== null && (
             <div className="flex flex-col gap-1.5">
@@ -168,7 +215,10 @@ export default function ContractDetailPage() {
               </div>
               <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                 <div
-                  className={cn("h-full rounded-full transition-all", statusBarColor)}
+                  className={cn(
+                    "h-full rounded-full transition-all",
+                    statusBarColor,
+                  )}
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -188,7 +238,9 @@ export default function ContractDetailPage() {
             >
               <User className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="font-medium text-sm">{fullName(client.firstName, client.lastName)}</p>
+                <p className="font-medium text-sm">
+                  {fullName(client.firstName, client.lastName)}
+                </p>
                 <p className="text-xs text-muted-foreground">Klient</p>
               </div>
             </div>
@@ -200,7 +252,9 @@ export default function ContractDetailPage() {
             >
               <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
               <div>
-                <p className="font-medium text-sm">{fullName(manager.firstName, manager.lastName)}</p>
+                <p className="font-medium text-sm">
+                  {fullName(manager.firstName, manager.lastName)}
+                </p>
                 <p className="text-xs text-muted-foreground">Správce smlouvy</p>
               </div>
             </div>
@@ -213,7 +267,9 @@ export default function ContractDetailPage() {
             >
               <Users className="h-4 w-4 text-muted-foreground shrink-0" />
               <div>
-                <p className="font-medium text-sm">{fullName(participant.firstName, participant.lastName)}</p>
+                <p className="font-medium text-sm">
+                  {fullName(participant.firstName, participant.lastName)}
+                </p>
                 <p className="text-xs text-muted-foreground">Účastník</p>
               </div>
             </div>

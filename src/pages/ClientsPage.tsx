@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import { TableSkeleton } from "@/components/table-skeleton";
 import { useClients } from "@/hooks/useClients";
 import * as clientService from "@/services/clients";
 import { getAgeFromPersonalId } from "@/lib/utils";
@@ -32,7 +33,7 @@ async function checkDuplicates(
 }
 
 export default function ClientsPage() {
-  const { data: clients } = useClients();
+  const { data: clients, loading } = useClients();
   const [search, setSearch] = useState("");
 
   const handleCreate = async (data: UserFormData) => {
@@ -52,6 +53,8 @@ export default function ClientsPage() {
     });
     toast.success("Klient úspěšně aktualizován");
   };
+
+  if (loading) return <TableSkeleton />;
 
   const filteredClients =
     search.length >= 3
