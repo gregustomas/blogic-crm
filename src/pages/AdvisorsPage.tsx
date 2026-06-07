@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import { TableSkeleton } from "@/components/table-skeleton";
 import * as advisorService from "@/services/advisors";
+import * as contractService from "@/services/contracts";
 import { getAgeFromPersonalId } from "@/lib/utils";
 import type { UserFormData } from "@/lib/schemas";
 import { useState } from "react";
@@ -37,21 +38,48 @@ export default function AdvisorsPage() {
   const [search, setSearch] = useState("");
 
   const handleCreate = async (data: UserFormData) => {
-    if (await checkDuplicates(data.email, data.personalId)) return;
-    await advisorService.create({
-      ...data,
-      age: getAgeFromPersonalId(data.personalId) ?? 0,
-    });
-    toast.success("Poradce úspěšně vytvořen");
+    try {
+      if (await checkDuplicates(data.email, data.personalId)) return;
+      await advisorService.create({ ...data, age: getAgeFromPersonalId(data.personalId) ?? 0 });
+      toast.success("Poradce úspěšně vytvořen");
+    } catch {
+      toast.error("Při vytváření došlo k chybě.");
+    }
   };
 
   const handleUpdate = async (id: string, data: UserFormData) => {
-    if (await checkDuplicates(data.email, data.personalId, id)) return;
-    await advisorService.update(id, {
-      ...data,
-      age: getAgeFromPersonalId(data.personalId) ?? 0,
-    });
-    toast.success("Poradce úspěšně aktualizován");
+    try {
+      if (await checkDuplicates(data.email, data.personalId, id)) return;
+      await advisorService.update(id, { ...data, age: getAgeFromPersonalId(data.personalId) ?? 0 });
+      toast.success("Poradce úspěšně aktualizován");
+    } catch {
+      toast.error("Při úpravě došlo k chybě.");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const existing = await contractService.getByAdvisorId(id);
+      const managerContracts = existing.filter((c) => c.managerId === id);
+      if (managerContracts.length > 0) {
+        toast.error(`Poradce je správcem ${managerContracts.length} smluv. Nejprve změňte správce.`);
+        return;
+      }
+      const participantContracts = existing.filter((c) => c.managerId !== id);
+      if (participantContracts.length > 0) {
+        await Promise.all(
+          participantContracts.map((c) =>
+            contractService.update(c.id, {
+              participantIds: c.participantIds.filter((pid) => pid !== id),
+            })
+          )
+        );
+      }
+      await advisorService.deleteById(id);
+      toast.success("Poradce úspěšně smazán");
+    } catch {
+      toast.error("Při mazání došlo k chybě.");
+    }
   };
 
   if (loading) return <TableSkeleton />;
@@ -121,10 +149,7 @@ export default function AdvisorsPage() {
         basePath="/advisors"
         emptyMessage="Žádní poradci"
         onEdit={handleUpdate}
-        onDelete={async (id) => {
-          await advisorService.deleteById(id);
-          toast.success("Poradce úspěšně smazán");
-        }}
+        onDelete={handleDelete}
         editLabels={{
           dialogTitle: "Upravit poradce",
           description: "Upravte informace o poradci.",

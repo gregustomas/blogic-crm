@@ -26,6 +26,7 @@ import { PageError } from "@/components/ui/page-error";
 import { UserForm } from "@/components/user/UserForm";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import * as advisorService from "@/services/advisors";
+import * as contractService from "@/services/contracts";
 import { getAgeFromPersonalId, fullName, todayISO } from "@/lib/utils";
 import type { UserFormData } from "@/lib/schemas";
 import { toast } from "sonner";
@@ -42,17 +43,37 @@ export default function AdvisorDetailPage() {
   );
 
   const handleUpdate = async (data: UserFormData) => {
-    await advisorService.update(id!, {
-      ...data,
-      age: getAgeFromPersonalId(data.personalId) ?? 0,
-    });
-    toast.success("Poradce úspěšně aktualizován");
+    try {
+      await advisorService.update(id!, { ...data, age: getAgeFromPersonalId(data.personalId) ?? 0 });
+      toast.success("Poradce úspěšně aktualizován");
+    } catch {
+      toast.error("Při úpravě došlo k chybě.");
+    }
   };
 
   const handleDelete = async () => {
-    await advisorService.deleteById(id!);
-    toast.success("Poradce úspěšně smazán");
-    navigate("/advisors");
+    try {
+      const managerContracts = contracts.filter((c) => c.managerId === id);
+      if (managerContracts.length > 0) {
+        toast.error(`Poradce je správcem ${managerContracts.length} smluv. Nejprve změňte správce.`);
+        return;
+      }
+      const participantContracts = contracts.filter((c) => c.managerId !== id);
+      if (participantContracts.length > 0) {
+        await Promise.all(
+          participantContracts.map((c) =>
+            contractService.update(c.id, {
+              participantIds: c.participantIds.filter((pid) => pid !== id),
+            })
+          )
+        );
+      }
+      await advisorService.deleteById(id!);
+      toast.success("Poradce úspěšně smazán");
+      navigate("/advisors");
+    } catch {
+      toast.error("Při mazání došlo k chybě.");
+    }
   };
 
   if (loading) return <DetailSkeleton />;

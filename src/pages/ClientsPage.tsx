@@ -2,6 +2,7 @@ import { Search } from "lucide-react";
 import { TableSkeleton } from "@/components/table-skeleton";
 import { useClients } from "@/hooks/useClients";
 import * as clientService from "@/services/clients";
+import * as contractService from "@/services/contracts";
 import { getAgeFromPersonalId } from "@/lib/utils";
 import type { UserFormData } from "@/lib/schemas";
 import { useState } from "react";
@@ -37,21 +38,37 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
 
   const handleCreate = async (data: UserFormData) => {
-    if (await checkDuplicates(data.email, data.personalId)) return;
-    await clientService.create({
-      ...data,
-      age: getAgeFromPersonalId(data.personalId) ?? 0,
-    });
-    toast.success("Klient úspěšně vytvořen");
+    try {
+      if (await checkDuplicates(data.email, data.personalId)) return;
+      await clientService.create({ ...data, age: getAgeFromPersonalId(data.personalId) ?? 0 });
+      toast.success("Klient úspěšně vytvořen");
+    } catch {
+      toast.error("Při vytváření došlo k chybě.");
+    }
   };
 
   const handleUpdate = async (id: string, data: UserFormData) => {
-    if (await checkDuplicates(data.email, data.personalId, id)) return;
-    await clientService.update(id, {
-      ...data,
-      age: getAgeFromPersonalId(data.personalId) ?? 0,
-    });
-    toast.success("Klient úspěšně aktualizován");
+    try {
+      if (await checkDuplicates(data.email, data.personalId, id)) return;
+      await clientService.update(id, { ...data, age: getAgeFromPersonalId(data.personalId) ?? 0 });
+      toast.success("Klient úspěšně aktualizován");
+    } catch {
+      toast.error("Při úpravě došlo k chybě.");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const existing = await contractService.getByClientId(id);
+      if (existing.length > 0) {
+        toast.error(`Klient má ${existing.length} smluv. Nejprve je smažte.`);
+      } else {
+        await clientService.deleteById(id);
+        toast.success("Klient úspěšně smazán");
+      }
+    } catch {
+      toast.error("Při mazání došlo k chybě.");
+    }
   };
 
   if (loading) return <TableSkeleton />;
@@ -121,10 +138,7 @@ export default function ClientsPage() {
         basePath="/clients"
         emptyMessage="Žádní klienti"
         onEdit={handleUpdate}
-        onDelete={async (id) => {
-          await clientService.deleteById(id);
-          toast.success("Klient úspěšně smazán");
-        }}
+        onDelete={handleDelete}
         editLabels={{
           dialogTitle: "Upravit klienta",
           description: "Upravte informace o klientovi.",

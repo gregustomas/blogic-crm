@@ -16,6 +16,7 @@ import { PageError } from "@/components/ui/page-error";
 import { UserForm } from "@/components/user/UserForm";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import * as clientService from "@/services/clients";
+import * as contractService from "@/services/contracts";
 import { getAgeFromPersonalId, fullName, todayISO } from "@/lib/utils";
 import type { UserFormData } from "@/lib/schemas";
 import { toast } from "sonner";
@@ -29,17 +30,30 @@ export default function ClientDetailPage() {
   const today = todayISO();
 
   const handleUpdate = async (data: UserFormData) => {
-    await clientService.update(id!, {
-      ...data,
-      age: getAgeFromPersonalId(data.personalId) ?? 0,
-    });
-    toast.success("Klient úspěšně aktualizován");
+    try {
+      await clientService.update(id!, {
+        ...data,
+        age: getAgeFromPersonalId(data.personalId) ?? 0,
+      });
+      toast.success("Klient úspěšně aktualizován");
+    } catch {
+      toast.error("Při úpravě došlo k chybě.");
+    }
   };
 
   const handleDelete = async () => {
-    await clientService.deleteById(id!);
-    toast.success("Klient úspěšně smazán");
-    navigate("/clients");
+    try {
+      const existing = await contractService.getByClientId(id!);
+      if (existing.length > 0) {
+        toast.error(`Klient má ${existing.length} smluv. Nejprve je smažte.`);
+      } else {
+        await clientService.deleteById(id!);
+        toast.success("Klient úspěšně smazán");
+        navigate("/clients");
+      }
+    } catch {
+      toast.error("Při mazání došlo k chybě.");
+    }
   };
 
   if (loading) return <DetailSkeleton />;

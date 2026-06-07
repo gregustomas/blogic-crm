@@ -25,34 +25,34 @@ export default function ContractsPage() {
   const [tab, setTab] = useState<TabFilter>("all");
 
   const handleCreate = async (data: ContractFormData) => {
-    const taken = await contractService.isRegistrationNumberTaken(
-      data.registrationNumber,
-    );
-    if (taken) {
-      toast.error("Smlouva s tímto evidenčním číslem již existuje");
-      return;
+    try {
+      const taken = await contractService.isRegistrationNumberTaken(data.registrationNumber);
+      if (taken) { toast.error("Smlouva s tímto evidenčním číslem již existuje"); return; }
+      await contractService.create({ ...data, validUntil: data.validUntil || null });
+      toast.success("Smlouva úspěšně vytvořena");
+    } catch {
+      toast.error("Při vytváření došlo k chybě.");
     }
-    await contractService.create({
-      ...data,
-      validUntil: data.validUntil || null,
-    });
-    toast.success("Smlouva úspěšně vytvořena");
   };
 
   const handleUpdate = async (id: string, data: ContractFormData) => {
-    const taken = await contractService.isRegistrationNumberTaken(
-      data.registrationNumber,
-      id,
-    );
-    if (taken) {
-      toast.error("Smlouva s tímto evidenčním číslem již existuje");
-      return;
+    try {
+      const taken = await contractService.isRegistrationNumberTaken(data.registrationNumber, id);
+      if (taken) { toast.error("Smlouva s tímto evidenčním číslem již existuje"); return; }
+      await contractService.update(id, { ...data, validUntil: data.validUntil || null });
+      toast.success("Smlouva úspěšně upravena");
+    } catch {
+      toast.error("Při úpravě došlo k chybě.");
     }
-    await contractService.update(id, {
-      ...data,
-      validUntil: data.validUntil || null,
-    });
-    toast.success("Smlouva úspěšně upravena");
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await contractService.deleteById(id);
+      toast.success("Smlouva úspěšně smazána");
+    } catch {
+      toast.error("Při mazání došlo k chybě.");
+    }
   };
 
   if (loading) return <TableSkeleton />;
@@ -150,10 +150,7 @@ export default function ContractsPage() {
         clients={clients ?? []}
         advisors={advisors ?? []}
         emptyMessage="Žádné smlouvy nenalezeny"
-        onDelete={(id) => {
-          contractService.deleteById(id);
-          toast.success("Smlouva úspěšně smazána");
-        }}
+        onDelete={handleDelete}
         editAction={(contract) => (
           <ContractsForm
             labels={{

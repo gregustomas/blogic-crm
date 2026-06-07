@@ -61,25 +61,24 @@ export default function ContractDetailPage() {
   const today = todayISO();
 
   const handleUpdate = async (data: ContractFormData) => {
-    const taken = await contractService.isRegistrationNumberTaken(
-      data.registrationNumber,
-      id!,
-    );
-    if (taken) {
-      toast.error("Smlouva s tímto evidenčním číslem již existuje");
-      return;
+    try {
+      const taken = await contractService.isRegistrationNumberTaken(data.registrationNumber, id!);
+      if (taken) { toast.error("Smlouva s tímto evidenčním číslem již existuje"); return; }
+      await contractService.update(id!, { ...data, validUntil: data.validUntil || null });
+      toast.success("Smlouva úspěšně upravena");
+    } catch {
+      toast.error("Při úpravě došlo k chybě.");
     }
-    await contractService.update(id!, {
-      ...data,
-      validUntil: data.validUntil || null,
-    });
-    toast.success("Smlouva úspěšně upravena");
   };
 
   const handleDelete = async () => {
-    await contractService.deleteById(id!);
-    toast.success("Smlouva úspěšně smazána");
-    navigate("/contracts");
+    try {
+      await contractService.deleteById(id!);
+      toast.success("Smlouva úspěšně smazána");
+      navigate("/contracts");
+    } catch {
+      toast.error("Při mazání došlo k chybě.");
+    }
   };
 
   if (loading) return <DetailSkeleton infoCount={5} />;
